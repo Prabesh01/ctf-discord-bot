@@ -59,7 +59,7 @@ def gen_challenge_embed(instance):
         embed_json['fields'].append({"name":"Challenge Link:","value":f"[{urlparse(instance.link).hostname}]({instance.link})","inline":True})
     if instance.author:
         embed_json['fields'].append({"name":"Author:","value":instance.author,"inline":True})
-    if '{' in instance.flag and instance.flag.ednswith('}'):
+    if '{' in instance.flag and instance.flag.endswith('}'):
         embed_json['fields'].append({"name":"Flag Format:","value":mask_flag(instance.flag),"inline":False})
     if instance.attachment:
         pass    
