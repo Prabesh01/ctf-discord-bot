@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
@@ -6,11 +5,14 @@ from db.models import Challenge, Solve
 from django.utils import timezone
 from config import get_config
 from functools import wraps
+from django.http import JsonResponse
 
 def api_key_required(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         provided_api_key = request.headers.get('X-API-Key', '')
+        print(provided_api_key)
+        print(get_config('API_KEY'))
         if provided_api_key != get_config('API_KEY'):
             return HttpResponse("Unauthorized", status=403)
         return view_func(request, *args, **kwargs)
@@ -49,4 +51,4 @@ def submit_flag(request):
 @api_key_required
 def get_challenges(request):
     challenges = Challenge.objects.filter(is_over=False).order_by('-add_time')[:10].values('id', 'title', 'flag')
-    return HttpResponse(challenges)
+    return JsonResponse({'challenges': list(challenges)})

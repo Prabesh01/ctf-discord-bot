@@ -13,6 +13,7 @@ def load_config():
             if value.isdigit(): value=int(value)
             CONFIG[key] = value
 load_config()
+CONFIG['COMM_FILE_PATH'] = BASE_DIR.parent / os.environ.get('COMM_FILE')
 
 def get_config(key, default=None):
     return CONFIG.get(key, default)
