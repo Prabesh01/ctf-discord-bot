@@ -11,3 +11,13 @@ As i started, to keep this simple, I used some not-so-professional workaround fo
 
  And yes, it took me just one day to build the entire thing. Most part was easy. One place i stuck for quite a while. challenge_pre_save of db/signals.py. Tried everything but couldn't figure what was wrong. It just wasn't working as intended. The lesson learned was:
  - Don't perform actions directly in the pre_save signal; instead, set flags and handle actions in the post_save signal after the object is saved and its state is consistent.
+
+### Deploy
+- set nginx.conf
+- add ALLOWED_HOSTS in settings.py
+- python3 manage.py collectstatic
+- chown -R www-data:www-data / chmod -R 755
+- `uvicorn ctfdash.asgi:application --host 127.0.0.1 --port 5050`
+OR fk it,
+- `nohup python3 manage.py runserver 5050 > ~/botlogs/ctf.log 2>&1 &`
+- `pkill -ecf "runserver 5050"`
