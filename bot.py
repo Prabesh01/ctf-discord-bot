@@ -18,14 +18,14 @@ intents = discord.Intents.default()
 bot = Bot(command_prefix='/', intents=intents)
 bot.remove_command('help')
 
-import requests as r
+import requests
 import json
 from difflib import get_close_matches
 
 challenges={}
 async def fetch_challenges_api():
     global challenges
-    rr=r.get(os.environ.get('django_web_url')+'/api/get_challenges/', headers={"X-API-Key":API_KEY})
+    rr=requests.get(os.environ.get('django_web_url')+'/api/get_challenges/', headers={"X-API-Key":API_KEY})
     for i in rr.json()['challenges']:
         challenges[i['title']]=[i['id'],i['flag']]
 
@@ -65,7 +65,7 @@ async def flag(interaction: discord.Interaction, flag: str, challenge: str =None
     challenge_id=challenges[challenge][0]
     flag_=challenges[challenge][1]
     if flag_==flag:
-        rr=r.post(os.environ.get('django_web_url')+'/api/submit_flag/', data={'user':interaction.user.id,"challenge":challenge_id}, headers={"X-API-Key":API_KEY})
+        rr=requests.post(os.environ.get('django_web_url')+'/api/submit_flag/', data={'user':interaction.user.id,"challenge":challenge_id}, headers={"X-API-Key":API_KEY})
         if rr.status_code==200:
             await interaction.response.send_message(f"Correct! - {challenge}", ephemeral=True)
         elif rr.status_code==202:
