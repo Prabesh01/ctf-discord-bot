@@ -25,6 +25,7 @@ from difflib import get_close_matches
 challenges={}
 async def fetch_challenges_api():
     global challenges
+    challenges={}
     rr=requests.get(os.environ.get('django_web_url')+'/api/get_challenges/', headers={"X-API-Key":API_KEY})
     try:
         for i in rr.json()['challenges']:
@@ -35,6 +36,7 @@ async def fetch_challenges_api():
 async def fetch_challenges_file():   
     try:     
         global challenges
+        challenges={}
         json_data = json.load(open(COMM_FILE_PATH,'r'))
         for i in json_data['challenges']:
             challenges[i['title']]=[i['id'],i['flag']]
@@ -62,17 +64,20 @@ async def on_ready() -> None:
 @bot.tree.command(name="flag", description="Submit CTF Flag")
 @app_commands.describe(challenge="name of the challenge", flag="flag to submit")
 async def flag(interaction: discord.Interaction, flag: str, challenge: str =None):
+    if not challenges:
+        await interaction.response.send_message("No challenges available atm. Please try again later!", ephemeral=True)
+        return
     if not challenge:
         challenge=list(challenges.keys())[0]
     else:
-        challenge = get_close_matches(challenge, challenges.keys())
+        challenge = [key for key in challenges.keys() if key.lower().startswith(challenge.lower())] # get_close_matches(challenge, challenges.keys())
         if challenge: challenge = challenge[0]
     if not challenge:
         await interaction.response.send_message("Challenge not found", ephemeral=True)
         return
     challenge_id=challenges[challenge][0]
     flag_=challenges[challenge][1]
-    if flag_==flag:
+    if flag_.lower()==flag.lower():
         rr=requests.post(os.environ.get('django_web_url')+'/api/submit_flag/', data={'user':interaction.user.id,"challenge":challenge_id}, headers={"X-API-Key":API_KEY})
         if rr.status_code==200:
             await interaction.response.send_message(f"Correct! - {challenge}", ephemeral=True)

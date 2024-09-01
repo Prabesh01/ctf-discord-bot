@@ -1,18 +1,4 @@
-Out of nowhere i got this idea. Django gives full featured admin panel. 
-So I could manage entire discord ctf competitions by only 
-- writing django models. (easy admin panel dashboard to create/record challenges)
-- trigger some discord webhook functions on db change (easy solves/new challenge notification)
-- simple discord.py bot to get flags from users with a slash command (easy flag submission)
-
-As i started, to keep this simple, I used some not-so-professional workaround for Bot-Django Communication:
- - Bot needs to fetch challenge title, id and flag from django. Everytime any of these are changes or new challenge is added, django creates a file and saves the json data on it. Bot checks this file every minute. Id file exists, it loads the challenges and deletes the file. Till django creates it again once new change occurs in db.
- - As challenges are dynamic, during flag submission to bot by users, it isn't possible to provide slash command choices. User have to type challenge title or latest added challenge is pressumed by default. Using difflib's get_close_matches to compare user provided challenge name and available challenge names.
- - Bot compares give flag and replies if it is correct. Then Bot submits flags through an django's csrf_extempt endpoint /api/submit_flag. Now django records the solve into the database. With the trigger (post_save receiver) set, webhook notification about the solve will be annouced if it passses the criteria mentioned in .env file.
-
- And yes, it took me just one day to build the entire thing. Most part was easy. One place i stuck for quite a while. challenge_pre_save of db/signals.py. Tried everything but couldn't figure what was wrong. It just wasn't working as intended. The lesson learned was:
- - Don't perform actions directly in the pre_save signal; instead, set flags and handle actions in the post_save signal after the object is saved and its state is consistent.
-
-## Test Run
+### Test Run
 - python manage.py runserver
 - Visit: http://127.0.0.1:8000/
 - Credentails: admin, flag
@@ -29,3 +15,54 @@ OR fk it,
 
 - `nohup python3 manage.py runserver 5050 > ~/botlogs/ctf.log 2>&1 &`
 - `pkill -ecf "runserver 5050"`
+
+### Screenshots
+
+#### Admin Panel
+
+- Mark challenge as over. Stop solve notifications.
+
+![admin1](./ss/admin1.png)
+
+- Full featured
+
+![admin2](./ss/admin2.png)
+
+- Solves can't be edited or added
+
+![admin3](./ss/admin3.png)
+
+#### Challenge
+
+- Creating new challenge (with is_over=False) sends notification.
+
+![challenge1](./ss/challenge1.png)
+
+- Updating challenge in django panel updates its message as well 
+
+![challenge2](./ss/challenge2.png)
+
+- 🔒 in footer means the challenge is marked as is_over and its flag cannot be submitted.
+- 🔕 means the challenge is marked as disable_solve_notif and new solve notification wont be sent for the challenge after submittion currect flag.
+
+#### Flag Submission
+
+- Challenge field is optional. By default, you will be submitting the flag for latest added challenge.
+
+![flag1](./ss/flag1.png)
+
+- In challenge field, you are supposed to enter the challenge's name that you have flag for. You don't have to write complete name; just first few initials.
+
+![flag2](./ss/flag2.png)
+
+#### Solves
+
+- Seperate custom message format can be set each for first blood, top x blood and remaining solves. Also limit how many solves are to be notified in .env file.
+
+![solve](./ss/solve.png)
+
+
+### Tricks
+
+- You can create whole bunch of challenges without publishing them by setting "is_over=True" when creating challenge. It will only go live once you edited the challenge and set it to False.
+- Do not keep two same challange name. it will affect bot's flag submission process. 
