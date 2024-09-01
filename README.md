@@ -12,6 +12,12 @@ As i started, to keep this simple, I used some not-so-professional workaround fo
  And yes, it took me just one day to build the entire thing. Most part was easy. One place i stuck for quite a while. challenge_pre_save of db/signals.py. Tried everything but couldn't figure what was wrong. It just wasn't working as intended. The lesson learned was:
  - Don't perform actions directly in the pre_save signal; instead, set flags and handle actions in the post_save signal after the object is saved and its state is consistent.
 
+## Test Run
+- python manage.py runserver
+- Visit: http://127.0.0.1:8000/
+- Credentails: admin, flag
+- To change, `python manage.py createsuperuser`
+
 ### Deploy
 - set nginx.conf
 - add ALLOWED_HOSTS in settings.py
