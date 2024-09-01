@@ -29,7 +29,7 @@ def challenge_pre_save(sender, instance, **kwargs):
     if instance.id: 
         previous = Challenge.objects.get(id=instance.id)
         changed_fields = [field for field in model_to_dict(instance) if getattr(instance, field) != getattr(previous, field)]        
-        if any([field in changed_fields for field in ['title', 'description', 'category', 'author', 'link', 'attachment', 'image','disable_solve_notif', 'is_over']]):            
+        if any([field in changed_fields for field in ['title', 'description', 'category', 'author', 'link', 'attachment', 'image','disable_solve_notif', 'flag', 'is_over']]):            
             if previous.is_over and not instance.is_over:
                 # notify that challenge is back
                 # notify_challenge_add(instance)
