@@ -32,6 +32,21 @@ def gen_empty_embed():
     webhook_json["embeds"] = [{}]
     return webhook_json
 
+def mask_flag(flag):
+    ctf_name,flag=flag.split('{',1)
+    flag=flag[:-1] # remove last }
+    format=""
+    for c in flag:
+        if c == "_": 
+            format+="_"
+        elif c.isdigit():
+            format+="i"
+        elif c.isalpha():
+            format+="c"
+        else:
+            format+='?'
+    return ctf_name+"{"+format+"}"
+
 
 def gen_challenge_embed(instance):
     webhook_json["content"] = get_config("announce_new_challenge_message")
@@ -44,6 +59,8 @@ def gen_challenge_embed(instance):
         embed_json['fields'].append({"name":"Challenge Link:","value":f"[{urlparse(instance.link).hostname}]({instance.link})","inline":True})
     if instance.author:
         embed_json['fields'].append({"name":"Author:","value":instance.author,"inline":True})
+    if '{' in instance.flag and instance.flag.ednswith('}'):
+        embed_json['fields'].append({"name":"Flag Format:","value":mask_flag(instance.flag),"inline":False})
     if instance.attachment:
         pass    
     if instance.image:
@@ -62,6 +79,18 @@ def gen_challenge_embed(instance):
 
 
 def gen_solve_embed(title,description):
+    webhook_json = {
+        "username": get_config("webhook_bot_name"),
+        "avatar_url": get_config("webhook_bot_avatar"),
+    }    
+    webhook_json["content"] = description +' - '+ title
+    return webhook_json
+    embed_json = {
+        "author": {
+            "name": get_config("embed_author_name"),
+            "icon_url": get_config("embed_author_avatar"),
+        },
+    }
     embed_json["title"] = f"__{title}__"
     embed_json["description"] = description
     webhook_json["embeds"] = [embed_json]
