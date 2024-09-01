@@ -109,7 +109,7 @@ def notify_solve(challenge,userid):
     else: pos=str(position)
     display_solves_upto=get_config('display_solves_upto')    
     if display_solves_upto==0 or position<=get_config('display_solves_upto'):
-        if not msg: msg=get_config('solves_msg_format')
+        if not msg: msg=get_config('solved_msg_format')
         msg=msg.replace("{n}",pos).replace("{xxx}",f"<@{userid}>")
         requests.post(get_config('solves_notif_channel_webhook'), json=gen_solve_embed(challenge.title, msg))
 

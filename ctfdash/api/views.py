@@ -11,8 +11,6 @@ def api_key_required(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
         provided_api_key = request.headers.get('X-API-Key', '')
-        print(provided_api_key)
-        print(get_config('API_KEY'))
         if provided_api_key != get_config('API_KEY'):
             return HttpResponse("Unauthorized", status=403)
         return view_func(request, *args, **kwargs)
