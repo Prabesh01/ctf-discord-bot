@@ -1,5 +1,9 @@
 - signals.py: trigger bot update on challenge delete.
 - bot.py: flag case insensitive check.
+- .gitignore: uploads/
+- signals.py: remove files on challenge delete.
+- remove fields and footer from solve msg embed
+- bot.py: fetch_challenges_file: clear challenges before adding new ones
 
 - notify.py: gen_image
 - notify.py: attacthment/image send to embed
