@@ -2,7 +2,7 @@ from config import get_config
 import requests
 from .models import Challenge, Solve
 from urllib.parse import urlparse
-from django.db import transaction
+import os, json
 
 webhook_json = {
     "username": get_config("webhook_bot_name"),
@@ -63,8 +63,13 @@ def gen_challenge_embed(instance):
         embed_json['fields'].append({"name":"Flag Format:","value":mask_flag(instance.flag),"inline":False})
     if instance.attachment:
         pass    
-    if instance.image:
-        pass
+    files={}
+    if instance.image and os.path.isfile(instance.image.path):
+            image_filename = os.path.basename(instance.image.path)
+
+            embed_json["image"] = {"url": "attachment://" + os.path.basename(instance.image.path)}
+            files['file'] = (image_filename, open(instance.image.path, 'rb'))
+
     footer_text=""
     if instance.is_over:
         footer_text+="🔒 • "
@@ -75,7 +80,8 @@ def gen_challenge_embed(instance):
         footer = footer_text+footer
     embed_json["footer"] = {"text": footer}
     webhook_json["embeds"] = [embed_json]
-    return webhook_json
+    
+    return webhook_json, files
 
 
 def gen_solve_embed(title,description):
@@ -115,11 +121,22 @@ def notify_solve(challenge,userid):
 
 
 def notify_challenge_add(challenge):
-    r=requests.post(get_config('challenge_announce_channel_webhook')+"?wait=true", json=gen_challenge_embed(challenge)).json()
+    webhook_js, files = gen_challenge_embed(challenge)
+    webhook_url=get_config('challenge_announce_channel_webhook')+"?wait=true"
+    if files:
+        payload = {'payload_json': json.dumps(webhook_json)}
+        r=requests.post(webhook_url,files=files, data=payload).json()
+    else:
+        r=requests.post(webhook_url, json=webhook_js).json()
     Challenge.objects.filter(id=challenge.id).update(message_id=r['id'])
 
 
 def edit_challenge(challenge):
     webhook_url=get_config('challenge_announce_channel_webhook')+"/messages/"+challenge.message_id
     requests.patch(webhook_url, json=gen_empty_embed())
-    requests.patch(webhook_url, json=gen_challenge_embed(challenge))
+    webhook_js, files = gen_challenge_embed(challenge)
+    if files:
+        payload = {'payload_json': json.dumps(webhook_json)}
+        requests.patch(webhook_url, files=files, data=payload)
+    else:
+        requests.patch(webhook_url, json=webhook_js)
