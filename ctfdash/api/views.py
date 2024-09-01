@@ -50,5 +50,5 @@ def submit_flag(request):
 @csrf_exempt
 @api_key_required
 def get_challenges(request):
-    challenges = Challenge.objects.filter(is_over=False).order_by('-add_time')[:10].values('id', 'title', 'flag')
+    challenges = Challenge.objects.filter(is_over=False).order_by('-add_time').values('id', 'title', 'flag')
     return JsonResponse({'challenges': list(challenges)})

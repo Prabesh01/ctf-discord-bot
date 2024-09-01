@@ -24,25 +24,29 @@ def ordinal(n):
     return f"{n}{suffix}"
 
 def gen_empty_embed():
+    webhook_json = {
+        "username": get_config("webhook_bot_name"),
+        "avatar_url": get_config("webhook_bot_avatar"),
+    }
     webhook_json["content"]="Editing..."
     webhook_json["embeds"] = [{}]
     return webhook_json
 
-def gen_image(title, image, category, author):
-    if not get_config("banner_background_image"):
-        return False
-    #gen image
 
 def gen_challenge_embed(instance):
     webhook_json["content"] = get_config("announce_new_challenge_message")
     embed_json["title"] = f"__{instance.title}__"
     embed_json["description"] = instance.description
+    embed_json['fields'] = []
+    if instance.category:
+        embed_json['fields'].append({"name":"Category:","value":instance.category.name,"inline":True})
     if instance.link:
-        embed_json['fields'] = [{"name":"Challenge Link:","value":f"[{urlparse(instance.link).hostname}]({instance.link})","inline":True}]
+        embed_json['fields'].append({"name":"Challenge Link:","value":f"[{urlparse(instance.link).hostname}]({instance.link})","inline":True})
+    if instance.author:
+        embed_json['fields'].append({"name":"Author:","value":instance.author,"inline":True})
     if instance.attachment:
-        pass
-    img=gen_image(instance.title, instance.image, instance.category, instance.author)
-    if img:
+        pass    
+    if instance.image:
         pass
     footer_text=""
     if instance.is_over:
