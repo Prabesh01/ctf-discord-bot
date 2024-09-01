@@ -1,4 +1,5 @@
 - signals.py: trigger bot update on challenge delete.
+- bot.py: flag case insensitive check.
 
 - notify.py: gen_image
 - notify.py: attacthment/image send to embed
