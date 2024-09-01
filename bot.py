@@ -26,21 +26,29 @@ challenges={}
 async def fetch_challenges_api():
     global challenges
     rr=requests.get(os.environ.get('django_web_url')+'/api/get_challenges/', headers={"X-API-Key":API_KEY})
-    for i in rr.json()['challenges']:
-        challenges[i['title']]=[i['id'],i['flag']]
+    try:
+        for i in rr.json()['challenges']:
+            challenges[i['title']]=[i['id'],i['flag']]
+    except:
+        print("json_decode_err: "+rr.text)
 
-async def fetch_challenges_file():        
-    global challenges
-    json_data = json.load(open(COMM_FILE_PATH,'r'))
-    for i in json_data['challenges']:
-        challenges[i['title']]=[i['id'],i['flag']]
-    os.remove(COMM_FILE_PATH)
-
+async def fetch_challenges_file():   
+    try:     
+        global challenges
+        json_data = json.load(open(COMM_FILE_PATH,'r'))
+        for i in json_data['challenges']:
+            challenges[i['title']]=[i['id'],i['flag']]
+        os.remove(COMM_FILE_PATH)
+    except:
+        print("json_decode_err: "+open(COMM_FILE_PATH,'r').read())
 
 @tasks.loop(minutes=0.1)
 async def update_challenges():
-    if os.path.exists(COMM_FILE_PATH):
-        await fetch_challenges_file()
+    try:
+        if os.path.exists(COMM_FILE_PATH):
+            await fetch_challenges_file()
+    except:
+        print("update_challenge_task_error")
 
 @bot.event
 async def on_ready() -> None:
@@ -55,7 +63,7 @@ async def on_ready() -> None:
 @app_commands.describe(challenge="name of the challenge", flag="flag to submit")
 async def flag(interaction: discord.Interaction, flag: str, challenge: str =None):
     if not challenge:
-        challenge=challenges.keys()[0]
+        challenge=list(challenges.keys())[0]
     else:
         challenge = get_close_matches(challenge, challenges.keys())
         if challenge: challenge = challenge[0]

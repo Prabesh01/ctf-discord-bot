@@ -18,6 +18,8 @@ As i started, to keep this simple, I used some not-so-professional workaround fo
 - python3 manage.py collectstatic
 - chown -R www-data:www-data / chmod -R 755
 - `uvicorn ctfdash.asgi:application --host 127.0.0.1 --port 5050`
+
 OR fk it,
+
 - `nohup python3 manage.py runserver 5050 > ~/botlogs/ctf.log 2>&1 &`
 - `pkill -ecf "runserver 5050"`
