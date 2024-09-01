@@ -1,4 +1,4 @@
-bot.py: /submit. /get-challenges.
+- signals.py: trigger bot update on challenge delete.
 
 - notify.py: gen_image
 - notify.py: attacthment/image send to embed
