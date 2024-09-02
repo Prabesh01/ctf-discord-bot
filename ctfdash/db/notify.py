@@ -29,7 +29,8 @@ def gen_empty_embed():
         "avatar_url": get_config("webhook_bot_avatar"),
     }
     webhook_json["content"]="Editing..."
-    webhook_json["embeds"] = [{}]
+    webhook_json["embeds"] = []
+    webhook_json["attachments"] = []
     return webhook_json
 
 def mask_flag(flag):
