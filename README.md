@@ -1,10 +1,11 @@
 ### Test Run
-- python manage.py runserver
+- python bot.py && python ctfdash/manage.py runserver
 - Visit: http://127.0.0.1:8000/
 - Credentails: admin, flag
 - To change, `python manage.py createsuperuser`
 
 ### Deploy
+- Edit .env.example and ctfdash/.env.example. Rename to .env. Must have same API_KEY on both.
 - set nginx.conf
 - add ALLOWED_HOSTS in settings.py
 - python3 manage.py collectstatic

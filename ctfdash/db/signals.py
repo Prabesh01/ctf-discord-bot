@@ -3,15 +3,9 @@ from django.dispatch import receiver
 from .models import Challenge, Solve
 from django.forms.models import model_to_dict
 from .notify import notify_solve, notify_challenge_add, edit_challenge
-from config import get_config
-import json
 from django.utils import timezone
 import os
 
-def ask_bot_to_update_challenges():
-    with open(get_config('COMM_FILE_PATH'),'w') as f:
-        challenges = Challenge.objects.filter(is_over=False).order_by('-add_time')[:10].values('id', 'title', 'flag')
-        json.dump({'challenges': list(challenges)},f)
 
 @receiver(post_save, sender=Solve)
 def solve_post_save(sender, instance, created, **kwargs):
@@ -56,18 +50,14 @@ def challenge_post_save(sender, instance, created, **kwargs):
     #     notify_challenge_add(instance)
     if created and not instance.is_over:
         notify_challenge_add(instance)
-        ask_bot_to_update_challenges()
     elif hasattr(instance, '_notify_add'):
         Challenge.objects.filter(id=instance.id).update(add_time=timezone.now())
         notify_challenge_add(instance)
-        ask_bot_to_update_challenges()
     elif hasattr(instance, '_edit_challenge'):
         edit_challenge(instance)
-        ask_bot_to_update_challenges()
 
 @receiver(post_delete, sender=Challenge)
 def challenge_post_delete(sender, instance, **kwargs):
-    ask_bot_to_update_challenges()
     if instance.attachment:
         if os.path.isfile(instance.attachment.path):
             os.remove(instance.attachment.path)

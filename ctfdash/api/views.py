@@ -20,33 +20,41 @@ def api_key_required(view_func):
 @api_key_required
 def submit_flag(request):
     if request.method == 'POST':
-        provided_api_key = request.headers.get('X-API-Key')
-        if provided_api_key != get_config('API_KEY'):
-            return HttpResponse("", status=403)
-        challenge_id = request.POST.get('challenge')
+        flag = request.POST.get('flag')
+        title_partial = request.POST.get('challenge')
         userid = request.POST.get('user')
-        if userid and challenge_id:
+
+        if userid and flag:            
+            # check if challenge exists
+            challenge=None
+            active_challenges=Challenge.objects.filter(is_over=False).order_by('-add_time').values('id', 'title', 'flag')
+            if title_partial:
+                for c in active_challenges:
+                    title=c['title']
+                    if title.lower().startswith(title_partial.lower()):
+                        challenge = c
+                        break
+            else: 
+                challenge = active_challenges.first()
+
+            if not challenge: return HttpResponse(f"Challenge doesn't exist!", status=404)
+            title=challenge['title']
+
+            # check if flag is correct
+            if flag.lower() != challenge['flag'].lower():
+                return HttpResponse("Incorrect! - "+title, status=422)
+            
+            # Create User if not exist
             user, created = User.objects.get_or_create(username=userid)
 
-            try:
-                challenge = Challenge.objects.get(id=challenge_id)
-            except Challenge.DoesNotExist:
-                return HttpResponse("", status=404)
-
-            # check if challenge is over
-            if challenge.is_over:
-                return HttpResponse("", status=400)
-            solve, created = Solve.objects.get_or_create(
-                challenge=challenge,
+            # create a new Solve object if not exist
+            _, created = Solve.objects.get_or_create(
+                challenge=Challenge.objects.get(id=challenge['id']),
                 user=user,
                 defaults={'solved_time': timezone.now()}
             )
-            if created: return HttpResponse("", status=200)
-            return HttpResponse("", status=202)
-    return HttpResponse("", status=400)
+            if created: return HttpResponse("Correct! - "+title, status=200) # Correct Flag
+            return HttpResponse("Correct! I said the same last time - "+title, status=202) # Already Solved
+        else: return HttpResponse("", status=400) # Parameter Missing
 
-@csrf_exempt
-@api_key_required
-def get_challenges(request):
-    challenges = Challenge.objects.filter(is_over=False).order_by('-add_time').values('id', 'title', 'flag')
-    return JsonResponse({'challenges': list(challenges)})
+    return HttpResponse("", status=405) # Method Not Allowed
