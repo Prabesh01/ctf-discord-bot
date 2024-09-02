@@ -34,16 +34,15 @@ OR fk it,
 
 #### Challenge
 
-- Creating new challenge (with is_over=False) sends notification.
+- Creating new challenge (with is_over=False) sends notification. Attatchment Support
 
 ![challenge1](./ss/challenge1.png)
 
-- Updating challenge in django panel updates its message as well 
+- Updating challenge in django panel updates its discord message as well 
 
 ![challenge2](./ss/challenge2.png)
-
-- 🔒 in footer means the challenge is marked as is_over and its flag cannot be submitted.
-- 🔕 means the challenge is marked as disable_solve_notif and new solve notification wont be sent for the challenge after submittion currect flag.
+- '🔒' in footer means the challenge is marked as is_over and its flag cannot be submitted.
+- '🔕' means the challenge is marked as disable_solve_notif and new solve notification wont be sent for the challenge after submittion currect flag.
 
 #### Flag Submission
 

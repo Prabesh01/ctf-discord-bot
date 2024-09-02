@@ -62,14 +62,12 @@ def gen_challenge_embed(instance):
         embed_json['fields'].append({"name":"Author:","value":instance.author,"inline":True})
     if '{' in instance.flag and instance.flag.endswith('}'):
         embed_json['fields'].append({"name":"Flag Format:","value":mask_flag(instance.flag),"inline":False})
-    if instance.attachment:
-        pass    
     files={}
     if instance.image and os.path.isfile(instance.image.path):
             image_filename = os.path.basename(instance.image.path)
 
             embed_json["image"] = {"url": "attachment://" + os.path.basename(instance.image.path)}
-            files['file'] = (image_filename, open(instance.image.path, 'rb'))
+            files['file1'] = (image_filename, open(instance.image.path, 'rb'))
 
     footer_text=""
     if instance.is_over:
@@ -81,6 +79,15 @@ def gen_challenge_embed(instance):
         footer = footer_text+footer
     embed_json["footer"] = {"text": footer}
     webhook_json["embeds"] = [embed_json]
+    if instance.attachment:
+        attachment_filename = os.path.basename(instance.attachment.path)
+        webhook_json["attatchments"]=[
+            {
+                "url": "attachment://" + attachment_filename,
+                "filename":attachment_filename
+            }
+        ]
+        files['file2'] = (attachment_filename, open(instance.attachment.path, 'rb'))
     
     return webhook_json, files
 
