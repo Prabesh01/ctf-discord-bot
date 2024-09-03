@@ -132,7 +132,7 @@ def notify_challenge_add(challenge):
     webhook_js, files = gen_challenge_embed(challenge)
     webhook_url=get_config('challenge_announce_channel_webhook')+"?wait=true"
     if files:
-        payload = {'payload_json': json.dumps(webhook_json)}
+        payload = {'payload_json': json.dumps(webhook_js)}
         r=requests.post(webhook_url,files=files, data=payload).json()
     else:
         r=requests.post(webhook_url, json=webhook_js).json()
@@ -144,7 +144,7 @@ def edit_challenge(challenge):
     requests.patch(webhook_url, json=gen_empty_embed())
     webhook_js, files = gen_challenge_embed(challenge)
     if files:
-        payload = {'payload_json': json.dumps(webhook_json)}
+        payload = {'payload_json': json.dumps(webhook_js)}
         requests.patch(webhook_url, files=files, data=payload)
     else:
         requests.patch(webhook_url, json=webhook_js)
