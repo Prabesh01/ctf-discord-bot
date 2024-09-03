@@ -10,10 +10,12 @@ _The main idea of this project is to get more output with the least effort. This
 
 
 ### Test Run
+- python ctfdash/manage.py makemigrations db
+- python ctfdash/manage.py migrate
+- `python manage.py createsuperuser`
 - python bot.py && python ctfdash/manage.py runserver
 - Visit: http://127.0.0.1:8000/
-- Credentails: admin, flag
-- To change, `python manage.py createsuperuser`
+
 
 ### Deploy
 - Edit .env.example and ctfdash/.env.example. Rename to .env. Must have same API_KEY on both.
