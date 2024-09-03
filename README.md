@@ -9,3 +9,9 @@ In this branch,
  - things got lil complex. still getting way more output than efforts input. so all good.
  - admin user is just there to view and delete data if required. It cannot add or edit other user's data. Have to go through discord oauth to create a login as a discord server admin.
  - Normal User can however view and edit only their challenges/settings/categories. One user cant see other users data.
+
+ ### Screenshots
+
+- each server has settings table to store server specific settings. 
+
+ ![settings](https://raw.githubusercontent.com/Prabesh01/ctf-discord-bot/main/ss/b2-settings.png)
