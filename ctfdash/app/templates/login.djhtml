@@ -1,0 +1,94 @@
+{% if error %}
+
+<script>alert("{{ error }}")</script>
+<h2><a href="{{ login }}">Click here to try again</a></h1>
+
+    {% endif %}
+
+    {% if guilds %}
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        body {
+            background-color: gray;
+            color: black;
+            font-family: helvetica, sans-serif;
+        }
+
+        main {
+            background-color: #EDFDED;
+            max-width: 1200px;
+            margin: auto;
+            min-height: 100vw;
+        }
+
+        h2 {
+            padding: 20px 0px;
+            text-align: center;
+        }
+
+        .card-row {
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: space-evenly;
+            margin: 0px 10px;
+        }
+
+        .card {
+            padding: 20px;
+            margin: 10px;
+            border: 1px solid #d7d7d7;
+            border-radius: 2px;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+            background-color: white;
+        }
+
+        .card:hover {
+            box-shadow: 2px 4px 8px 0 rgba(0, 0, 0, 0.15);
+        }
+
+        .card>img {
+            border-radius: 50%;
+            max-width: 100%;
+            margin-bottom: 10px;
+            height: auto;
+            align-items: center;
+        }
+
+        .card h3 {
+            color: purple;
+        }
+
+        .card p {
+            color: #757575;
+            line-height: 1.5;
+            padding-top: 10px;
+        }
+
+        h3 {
+            text-align: center;
+        }
+    </style>
+
+    <main>
+        <h2>Select a Server</h2>
+        <section class="card-row">
+            {% for id,data in guilds.items %}
+            <a href="/?id={{ id }}&token={{ token }}">
+                <article class="card">
+                    <img src="https://cdn.discordapp.com/icons/{{ id }}/{{ data.1 }}.jpg" onerror="this.src='https://cdn.discordapp.com/avatars/1280495542941647000/a9282d721adfeabf0b15a91459daa75d.webp';" alt="Server Icon">
+                    <h3>{{ data.0 }}</h3>
+
+                </article>
+            </a>
+            {% endfor %}
+        </section>
+
+
+    </main>
+
+    {% endif %}

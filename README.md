@@ -10,6 +10,11 @@ In this branch,
  - admin user is just there to view and delete data if required. It cannot add or edit other user's data. Have to go through discord oauth to create a login as a discord server admin.
  - Normal User can however view and edit only their challenges/settings/categories. One user cant see other users data.
 
+### deploy
+- instructions mentioned in main branch
+- provide discord client id and secret for dsicord oauth.
+- set redirect url same as django_web_url in discord developers settings.
+
  ### Screenshots
 
 - each server has settings table to store server specific settings. 

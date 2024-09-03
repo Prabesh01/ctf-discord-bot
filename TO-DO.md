@@ -1,6 +1,3 @@
-### In Process
-- multiple server: login with discord. ask to select server he owns. login him as username=serverid
-
 ### TO-Do
 - Score:
     - models.py: score (Challenge/User).
