@@ -1,10 +1,12 @@
 from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
-from .models import Challenge, Solve
+from .models import Challenge, Solve, Setting
+from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
 from .notify import notify_solve, notify_challenge_add, edit_challenge
 from django.utils import timezone
 import os
+from django.contrib.auth.models import Permission
 
 
 @receiver(post_save, sender=Solve)
@@ -63,3 +65,26 @@ def challenge_post_delete(sender, instance, **kwargs):
     if instance.image:
         if os.path.isfile(instance.image.path):
             os.remove(instance.image.path)
+
+
+@receiver(post_save, sender=User)
+def create_user_settings(sender, instance, created, **kwargs):
+    if instance.is_staff and instance.username != 'admin':
+        Setting.objects.get_or_create(user=instance)
+        permissions = Permission.objects.filter(name__in=[
+             "Can change user",
+             "Can delete user",
+             "Can view user",
+             "Can add category",
+             "Can change category",
+             "Can delete category",
+             "Can view category",
+             "Can add challenge",
+             "Can change challenge",
+             "Can delete challenge",
+             "Can view challenge",
+             "Can change setting",
+             "Can view setting",
+             "Can delete solve",
+             "Can view solve"])
+        instance.user_permissions.add(*permissions)

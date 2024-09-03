@@ -23,11 +23,19 @@ def submit_flag(request):
         flag = request.POST.get('flag')
         title_partial = request.POST.get('challenge')
         userid = request.POST.get('user')
+        serverid = request.POST.get('server')
 
-        if userid and flag:            
+        if userid and flag and serverid:
+
+            # Check with user with username=serverid exists. Server admins login to django admin with username of corresponding server id
+            try:
+                server = User.objects.get(username=serverid)
+            except User.DoesNotExist:
+                return HttpResponse(f"This server has no challenges.\nServer owner can visit <{get_config('django_web_url')}> and add challenges.", status=403)
+
             # check if challenge exists
             challenge=None
-            active_challenges=Challenge.objects.filter(is_over=False).order_by('-add_time').values('id', 'title', 'flag')
+            active_challenges=Challenge.objects.filter(is_over=False, user=server).order_by('-add_time').values('id', 'title', 'flag')
             if title_partial:
                 for c in active_challenges:
                     title=c['title']

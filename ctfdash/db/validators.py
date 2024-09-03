@@ -29,7 +29,7 @@ def size_validate(file, megabyte_limit):
 
 
 def attatchment_validate(file):
-    size_validate(file, 50.0)
+    size_validate(file, 25.0)
 
 
 def image_validate(file):

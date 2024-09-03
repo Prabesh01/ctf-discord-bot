@@ -1,19 +1,12 @@
-from config import get_config
 import requests
-from .models import Challenge, Solve
+from .models import Challenge, Solve, Setting
 from urllib.parse import urlparse
 import os, json
 
-webhook_json = {
-    "username": get_config("webhook_bot_name"),
-    "avatar_url": get_config("webhook_bot_avatar"),
-}
-embed_json = {
-    "author": {
-        "name": get_config("embed_author_name"),
-        "icon_url": get_config("embed_author_avatar"),
-    },
-}
+
+def get_settings(challenge):
+    return Setting.objects.get(user=challenge.user)
+
 
 def ordinal(n):
     suffixes = {1: 'st', 2: 'nd', 3: 'rd'}
@@ -23,15 +16,17 @@ def ordinal(n):
         suffix = suffixes.get(n % 10, 'th')
     return f"{n}{suffix}"
 
-def gen_empty_embed():
+
+def gen_empty_embed(settings):
     webhook_json = {
-        "username": get_config("webhook_bot_name"),
-        "avatar_url": get_config("webhook_bot_avatar"),
+        "username": settings.webhook_bot_name,
+        "avatar_url": settings.webhook_bot_avatar,
     }
     webhook_json["content"]="Editing..."
     webhook_json["embeds"] = []
     webhook_json["attachments"] = []
     return webhook_json
+
 
 def mask_flag(flag):
     ctf_name,flag=flag.split('{',1)
@@ -49,8 +44,18 @@ def mask_flag(flag):
     return ctf_name+"{"+format+"}"
 
 
-def gen_challenge_embed(instance):
-    webhook_json["content"] = get_config("announce_new_challenge_message")
+def gen_challenge_embed(instance, settings):
+    webhook_json = {
+        "username": settings.webhook_bot_name,
+        "avatar_url": settings.webhook_bot_avatar,
+    }    
+    embed_json = {
+        "author": {
+            "name": settings.embed_author_name,
+            "icon_url": settings.embed_author_icon,
+        },
+    }    
+    webhook_json["content"] = settings.new_challenge_announce_message
     embed_json["title"] = f"__{instance.title}__"
     embed_json["description"] = instance.description
     embed_json['fields'] = []
@@ -74,7 +79,7 @@ def gen_challenge_embed(instance):
         footer_text+="🔒 • "
     if instance.disable_solve_notif:
         footer_text+="🔕 • "
-    footer=get_config("new_challenge_footer_text")
+    footer=settings.challenge_footer_text
     if footer_text:
         footer = footer_text+footer
     embed_json["footer"] = {"text": footer}
@@ -92,17 +97,17 @@ def gen_challenge_embed(instance):
     return webhook_json, files
 
 
-def gen_solve_embed(title,description):
+def gen_solve_embed(title,description,settings):
     webhook_json = {
-        "username": get_config("webhook_bot_name"),
-        "avatar_url": get_config("webhook_bot_avatar"),
+        "username": settings.webhook_bot_name,
+        "avatar_url": settings.webhook_bot_avatar,
     }    
     webhook_json["content"] = description +' - '+ title
     return webhook_json
     embed_json = {
         "author": {
-            "name": get_config("embed_author_name"),
-            "icon_url": get_config("embed_author_avatar"),
+            "name": settings.embed_author_name,
+            "icon_url": settings.embed_author_icon,
         },
     }
     embed_json["title"] = f"__{title}__"
@@ -113,26 +118,28 @@ def gen_solve_embed(title,description):
 
 def notify_solve(challenge,userid):
     position=Solve.objects.filter(challenge=challenge).count()
+    settings=get_settings(challenge)
     msg=""
     if position==1:
         pos="First"
-        msg=get_config('first_blood_msg_format')
-    elif position<=get_config('top_x_priority'):
+        msg=settings.first_blood_msg_format
+    elif position<=settings.top_x_priority:
         pos=ordinal(position)
-        msg=get_config('priority_blood_msg_format')
+        msg=settings.priority_blood_msg_format
     else: pos=str(position)
-    display_solves_upto=get_config('display_solves_upto')    
-    if display_solves_upto==0 or position<=get_config('display_solves_upto'):
-        if not msg: msg=get_config('solved_msg_format')
+    display_solves_upto=settings.display_solves_upto    
+    if display_solves_upto==0 or position<=display_solves_upto:
+        if not msg: msg=settings.solved_msg_format
         msg=msg.replace("{n}",pos).replace("{xxx}",f"<@{userid}>")
-        requests.post(get_config('solves_notif_channel_webhook'), json=gen_solve_embed(challenge.title, msg))
+        requests.post(settings.solve_webhook, json=gen_solve_embed(challenge.title, msg, settings))
 
 
 def notify_challenge_add(challenge):
-    webhook_js, files = gen_challenge_embed(challenge)
-    webhook_url=get_config('challenge_announce_channel_webhook')+"?wait=true"
+    settings=get_settings(challenge)
+    webhook_js, files = gen_challenge_embed(challenge, settings)
+    webhook_url=settings.challenge_webhook+"?wait=true"
     if files:
-        payload = {'payload_json': json.dumps(webhook_json)}
+        payload = {'payload_json': json.dumps(webhook_js)}
         r=requests.post(webhook_url,files=files, data=payload).json()
     else:
         r=requests.post(webhook_url, json=webhook_js).json()
@@ -140,11 +147,12 @@ def notify_challenge_add(challenge):
 
 
 def edit_challenge(challenge):
-    webhook_url=get_config('challenge_announce_channel_webhook')+"/messages/"+challenge.message_id
-    requests.patch(webhook_url, json=gen_empty_embed())
-    webhook_js, files = gen_challenge_embed(challenge)
+    settings=get_settings(challenge)
+    webhook_url=settings.challenge_webhook+"/messages/"+challenge.message_id
+    requests.patch(webhook_url, json=gen_empty_embed(settings))
+    webhook_js, files = gen_challenge_embed(challenge,settings)
     if files:
-        payload = {'payload_json': json.dumps(webhook_json)}
+        payload = {'payload_json': json.dumps(webhook_js)}
         requests.patch(webhook_url, files=files, data=payload)
     else:
         requests.patch(webhook_url, json=webhook_js)

@@ -27,9 +27,13 @@ async def on_ready() -> None:
 
 
 @bot.tree.command(name="flag", description="Submit CTF Flag")
+@app_commands.allowed_contexts(guilds=True, dms=False, private_channels=True)
+@app_commands.allowed_installs(guilds=True, users=False)
 @app_commands.describe(challenge="name of the challenge", flag="flag to submit")
 async def flag(interaction: discord.Interaction, flag: str, challenge: str =None):
-    rr=requests.post(os.environ.get('django_web_url')+'/api/submit_flag/', data={'user':interaction.user.id,"challenge":challenge, "flag": flag}, headers={"X-API-Key":API_KEY})
+    guild=interaction.guild
+    if not guild: return
+    rr=requests.post(os.environ.get('django_web_url')+'/api/submit_flag/', data={'user':interaction.user.id,"challenge":challenge, "flag": flag,"server":guild.id}, headers={"X-API-Key":API_KEY})
     try:
         await interaction.response.send_message(rr.text, ephemeral=True)
     except:
