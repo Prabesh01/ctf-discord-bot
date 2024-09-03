@@ -22,19 +22,21 @@ def solve_post_save(sender, instance, created, **kwargs):
 def challenge_pre_save(sender, instance, **kwargs):
     if instance.id: 
         previous = Challenge.objects.get(id=instance.id)
-        changed_fields = [field for field in model_to_dict(instance) if getattr(instance, field) != getattr(previous, field)]        
+        changed_fields = [field for field in model_to_dict(instance) if getattr(instance, field) != getattr(previous, field)]
+        if instance.attachment!=previous.attachment:
+                        if previous.attachment and os.path.isfile(previous.attachment.path):
+                                os.remove(previous.attachment.path)
+        if instance.image!=previous.image:
+                        if previous.image and os.path.isfile(previous.image.path):
+                                os.remove(previous.image.path)
         if any([field in changed_fields for field in ['title', 'description', 'category', 'author', 'link', 'attachment', 'image','disable_solve_notif', 'flag', 'is_over']]):            
             if previous.is_over and not instance.is_over:
-                # notify that challenge is back
-                # notify_challenge_add(instance)
                 if instance.message_id:
                     instance._edit_challenge = True
                 else:
                     instance._notify_add = True
-                # clear past solves?
 
             elif instance.message_id:
-                # edit_challenge(instance)
                 instance._edit_challenge = True
             else:
                 # cant edit challenge that is not posted and has no message_id
@@ -43,11 +45,6 @@ def challenge_pre_save(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Challenge)
 def challenge_post_save(sender, instance, created, **kwargs):
-    # if created:
-    #     if instance.is_over:
-    #         # no need to notify. just return
-    #         return
-    #     notify_challenge_add(instance)
     if created and not instance.is_over:
         notify_challenge_add(instance)
     elif hasattr(instance, '_notify_add'):
@@ -55,6 +52,7 @@ def challenge_post_save(sender, instance, created, **kwargs):
         notify_challenge_add(instance)
     elif hasattr(instance, '_edit_challenge'):
         edit_challenge(instance)
+
 
 @receiver(post_delete, sender=Challenge)
 def challenge_post_delete(sender, instance, **kwargs):
