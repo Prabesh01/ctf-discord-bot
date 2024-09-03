@@ -9,3 +9,8 @@
 - notify.py: gen_image
 - multiple attachments/links
 - create/join team. team_mandatory
+
+### might
+
+ - hint drop
+ - add writeup
