@@ -1,3 +1,14 @@
+### main branch
+
+This branch includes:
+ - Basic yet feature rich CTF Management system to create+edit challenges/submit flags/notify new challenges and bloods/solves.
+ - NDV (little-to-No Django View) code. only models and signals. This means no webfront except admin panel
+ - single server support only. No-multi tenancy.
+ - No scoring system
+
+_The main idea of this project is to get more output with the least effort. This branch will be kept simple. Any extra features and complexities will be on different branches._  
+
+
 ### Test Run
 - python bot.py && python ctfdash/manage.py runserver
 - Visit: http://127.0.0.1:8000/
@@ -65,4 +76,3 @@ OR fk it,
 ### Tricks
 
 - You can create whole bunch of challenges without publishing them by setting "is_over=True" when creating challenge. It will only go live once you edited the challenge and set it to False.
-- Do not keep two same challange name. it will affect bot's flag submission process. 
