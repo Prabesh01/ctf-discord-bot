@@ -78,7 +78,7 @@
         <h2>Select a Server</h2>
         <section class="card-row">
             {% for id,data in guilds.items %}
-            <a href="/?id={{ id }}&token={{ token }}">
+            <a href="/login?id={{ id }}&token={{ token }}">
                 <article class="card">
                     <img src="https://cdn.discordapp.com/icons/{{ id }}/{{ data.1 }}.jpg" onerror="this.src='https://cdn.discordapp.com/avatars/1280495542941647000/a9282d721adfeabf0b15a91459daa75d.webp';" alt="Server Icon">
                     <h3>{{ data.0 }}</h3>
