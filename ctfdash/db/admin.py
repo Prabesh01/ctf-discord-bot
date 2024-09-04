@@ -14,12 +14,11 @@ class UserAdmin(BaseUserAdmin):
         return qs.filter(username=request.user.username)
 
     def has_add_permission(self, request):
-        if request.user.is_superuser: return True        
         return False
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        if request.user.is_superuser:
+        if not request.user.is_superuser:
             for field_name, field in form.base_fields.items():
                 if field_name not in ['password']:
                     field.widget = forms.HiddenInput()
@@ -27,7 +26,7 @@ class UserAdmin(BaseUserAdmin):
         return form
     
     def save_model(self, request, obj, form, change):
-        if request.user.is_superuser:
+        if not request.user.is_superuser:
             for field in form.changed_data:
                 if field not in ['password']:
                     raise ValidationError('You are not allowed to change these fields')                 
@@ -36,7 +35,7 @@ class UserAdmin(BaseUserAdmin):
 
         return super().save_model(request, obj, form, change)    
 
-    def has_add_permission(self, request, obj=None):
+    def has_change_permission(self, request, obj=None):
         if request.user.is_superuser: return False
 
 
