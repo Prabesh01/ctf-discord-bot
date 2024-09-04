@@ -1,5 +1,7 @@
 ### TO-Do
 
+- in signals.py and admins.py, replace admin user checks with super user check. 
+
 - Add Login with Discord page. Already have credentials? Access admin panel.
 instead of directly redirecting to oauth.
 
