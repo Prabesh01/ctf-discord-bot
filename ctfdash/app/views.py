@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 API_ENDPOINT = 'https://discord.com/api/v10'
 CLIENT_ID = get_config('DISCORD_CLIENT_ID')
 CLIENT_SECRET = get_config('DISCORD_CLIENT_SECRET')
-REDIRECT_URI = get_config('django_web_url')
+REDIRECT_URI = get_config('django_web_url')+'/login'
 OAUTH_URL=f'https://discord.com/oauth2/authorize?response_type=code&client_id={CLIENT_ID}&scope=guilds&redirect_uri={REDIRECT_URI}&prompt=consent&integration_type=0'
 
 def exchange_code(code):

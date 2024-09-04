@@ -13,7 +13,7 @@ In this branch,
 ### deploy
 - instructions mentioned in main branch
 - provide discord client id and secret for dsicord oauth.
-- set redirect url same as django_web_url in discord developers settings.
+- set redirect url same as django_web_url/login in discord developers settings.
 
  ### Screenshots
 
