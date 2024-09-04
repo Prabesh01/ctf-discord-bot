@@ -131,8 +131,7 @@ class ChallengeAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        if request.user.is_superuser:
-            form.base_fields['category'].queryset = Category.objects.filter(user=request.user)
+        form.base_fields['category'].queryset = Category.objects.filter(user=request.user)
         return form
 
     def has_add_permission(self, request):
