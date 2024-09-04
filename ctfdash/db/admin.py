@@ -37,6 +37,7 @@ class UserAdmin(BaseUserAdmin):
 
     def has_change_permission(self, request, obj=None):
         if request.user.is_superuser: return False
+        return True
 
 
 class GroupAdmin(admin.ModelAdmin):
