@@ -71,7 +71,7 @@ def gen_challenge_embed(instance, settings):
     if instance.image and os.path.isfile(instance.image.path):
             image_filename = os.path.basename(instance.image.path)
 
-            embed_json["image"] = {"url": "attachment://" + os.path.basename(instance.image.path)}
+            embed_json["thumbnail"] = {"url": "attachment://" + os.path.basename(instance.image.path)}
             files['file1'] = (image_filename, open(instance.image.path, 'rb'))
 
     footer_text=""
