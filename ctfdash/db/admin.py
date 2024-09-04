@@ -9,17 +9,17 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 class UserAdmin(BaseUserAdmin):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        if request.user.username == 'admin':
+        if request.user.is_superuser:
             return qs
         return qs.filter(username=request.user.username)
 
     def has_add_permission(self, request):
-        if request.user.username == 'admin': return True        
+        if request.user.is_superuser: return True        
         return False
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        if request.user.username != 'admin':
+        if request.user.is_superuser:
             for field_name, field in form.base_fields.items():
                 if field_name not in ['password']:
                     field.widget = forms.HiddenInput()
@@ -27,7 +27,7 @@ class UserAdmin(BaseUserAdmin):
         return form
     
     def save_model(self, request, obj, form, change):
-        if request.user.username != 'admin':
+        if request.user.is_superuser:
             for field in form.changed_data:
                 if field not in ['password']:
                     raise ValidationError('You are not allowed to change these fields')                 
@@ -37,7 +37,7 @@ class UserAdmin(BaseUserAdmin):
         return super().save_model(request, obj, form, change)    
 
     def has_add_permission(self, request, obj=None):
-        if request.user.username == "admin": return False
+        if request.user.is_superuser: return False
 
 
 class GroupAdmin(admin.ModelAdmin):
@@ -69,7 +69,7 @@ class SettingAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        if request.user.username == 'admin':
+        if request.user.is_superuser:
             return qs
         return qs.filter(user=request.user)
 
@@ -81,11 +81,11 @@ class SettingAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
-        if request.user.username == "admin": return False
+        if request.user.is_superuser: return False
         return True
 
     def has_delete_permission(self, request, obj=None):
-        if request.user.username == 'admin': return True
+        if request.user.is_superuser: return True
         return False
 
 
@@ -94,7 +94,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        if request.user.username == 'admin':
+        if request.user.is_superuser:
             return qs
         return qs.filter(user=request.user)
 
@@ -103,11 +103,11 @@ class CategoryAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
     def has_add_permission(self, request):
-        if request.user.username == "admin": return False
+        if request.user.is_superuser: return False
         return True
 
     def has_change_permission(self, request, obj=None):
-        if request.user.username == "admin": return False
+        if request.user.is_superuser: return False
         return True
 
 
@@ -116,27 +116,31 @@ class ChallengeAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        if request.user.username == 'admin':
+        if request.user.is_superuser:
             return qs
         return qs.filter(user=request.user)
 
-    def save_model(self, request, obj, form, change):
+    def save_model(self, request, obj, form, change):        
         obj.user = request.user
+        setting, _ = Setting.objects.get_or_create(user=obj.user)
+        if not setting.challenge_webhook or not setting.solve_webhook:
+            self.message_user(request, 'Cannot add/edit challenge because challenge_webhook and solve_webhook are not set in Settings.', level='error')
+            return False
         super().save_model(request, obj, form, change)
 
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        if request.user.username != 'admin':
+        if request.user.is_superuser:
             form.base_fields['category'].queryset = Category.objects.filter(user=request.user)
         return form
 
     def has_add_permission(self, request):
-        if request.user.username == "admin": return False
+        if request.user.is_superuser: return False
         return True
 
     def has_change_permission(self, request, obj=None):
-        if request.user.username == "admin": return False
+        if request.user.is_superuser: return False
         return True
 
 
@@ -146,7 +150,7 @@ class SolveAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        if request.user.username == 'admin':
+        if request.user.is_superuser:
             return qs
         return qs.filter(challenge__user=request.user)
 

@@ -69,7 +69,7 @@ def challenge_post_delete(sender, instance, **kwargs):
 
 @receiver(post_save, sender=User)
 def create_user_settings(sender, instance, created, **kwargs):
-    if instance.is_staff and instance.username != 'admin':
+    if instance.is_staff and not instance.is_superuser:
         Setting.objects.get_or_create(user=instance)
         permissions = Permission.objects.filter(name__in=[
              "Can change user",

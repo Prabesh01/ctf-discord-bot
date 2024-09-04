@@ -64,3 +64,7 @@ def login(request):
 
         # return render(request, 'login.html', {'next': request.GET.get('next')})
     return redirect(OAUTH_URL, permanent=False)
+
+
+def home(request):
+  return render(request, 'home.djhtml', {'id':CLIENT_ID,"login":OAUTH_URL, "dashboard":REDIRECT_URI})
