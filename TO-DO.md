@@ -1,5 +1,10 @@
 ### TO-Do
 
+- flag encryption
+- db/models.py solve: unique together(user, challenge)
+
+### Later
+
 - Score:
     - models.py: score (Challenge/User).
     - api/bot.py: leaderboard fetch. 

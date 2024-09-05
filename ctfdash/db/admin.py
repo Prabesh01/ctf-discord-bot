@@ -128,10 +128,10 @@ class ChallengeAdmin(admin.ModelAdmin):
             return False
         super().save_model(request, obj, form, change)
 
-
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
-        form.base_fields['category'].queryset = Category.objects.filter(user=request.user)
+        if not request.user.is_superuser:
+            form.base_fields['category'].queryset = Category.objects.filter(user=request.user)
         return form
 
     def has_add_permission(self, request):
