@@ -2,6 +2,7 @@ import requests
 from .models import Challenge, Solve, Setting
 from urllib.parse import urlparse
 import os, json
+from django.core.exceptions import ValidationError
 
 
 def get_settings(challenge):
@@ -143,13 +144,18 @@ def notify_challenge_add(challenge):
         r=requests.post(webhook_url,files=files, data=payload).json()
     else:
         r=requests.post(webhook_url, json=webhook_js).json()
-    Challenge.objects.filter(id=challenge.id).update(message_id=r['id'])
+    try:
+        Challenge.objects.filter(id=challenge.id).update(message_id=r['id'])
+    except KeyError:
+        raise ValidationError("Invalid challenge_webhook URL provided in Settings!")
 
 
 def edit_challenge(challenge):
     settings=get_settings(challenge)
     webhook_url=settings.challenge_webhook+"/messages/"+challenge.message_id
-    requests.patch(webhook_url, json=gen_empty_embed(settings))
+    r=requests.patch(webhook_url, json=gen_empty_embed(settings))
+    if not r.ok:
+        raise ValidationError("Invalid challenge_webhook URL provided in Settings!")
     webhook_js, files = gen_challenge_embed(challenge,settings)
     if files:
         payload = {'payload_json': json.dumps(webhook_js)}

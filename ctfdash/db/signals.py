@@ -88,3 +88,12 @@ def create_user_settings(sender, instance, created, **kwargs):
              "Can delete solve",
              "Can view solve"])
         instance.user_permissions.add(*permissions)
+
+
+@receiver(post_delete, sender=User)
+def delete_user_settings(sender, instance, **kwargs):
+    try:
+        setting = Setting.objects.get(user=instance)
+        setting.delete()
+    except Setting.DoesNotExist:
+        pass

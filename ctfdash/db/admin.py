@@ -4,6 +4,7 @@ from django.contrib.auth.models import User, Group
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib import messages
 
 
 class UserAdmin(BaseUserAdmin):
@@ -124,9 +125,16 @@ class ChallengeAdmin(admin.ModelAdmin):
         obj.user = request.user
         setting, _ = Setting.objects.get_or_create(user=obj.user)
         if not setting.challenge_webhook or not setting.solve_webhook:
+            messages.set_level(request, messages.ERROR)
             self.message_user(request, 'Cannot add/edit challenge because challenge_webhook and solve_webhook are not set in Settings.', level='error')
             return False
-        super().save_model(request, obj, form, change)
+        try:
+            super().save_model(request, obj, form, change)
+        except ValidationError as e:
+            messages.set_level(request, messages.ERROR)
+            obj.delete()
+            self.message_user(request, f'Error: {e}', level='error')
+            return False
 
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)

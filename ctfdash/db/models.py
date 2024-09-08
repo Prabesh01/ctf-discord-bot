@@ -17,7 +17,7 @@ class Setting(models.Model):
     embed_author_name = models.CharField(max_length=50, default='CTF', help_text="Name of embeds message author")
     embed_author_icon = models.URLField(max_length=500, default="https://capturetheflag.withgoogle.com/img/Flag.png", help_text="Icon of the author")
     challenge_footer_text = models.CharField(max_length=200, default='Submit flag to Conan bot using slash command `/flag`', help_text="Footer text for the challenge embed")       
-    user = models.ForeignKey(User, on_delete=models.CASCADE,editable=False)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,editable=False)
 
 
 class Category(models.Model):

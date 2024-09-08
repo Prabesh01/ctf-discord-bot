@@ -1,3 +1,8 @@
+### Changelog
+
+- can't add/edit challenge if invalid webhook url given
+- allow users to delete User. Settings permission wont hinder now.
+
 ### TO-Do
 
 - flag encryption
