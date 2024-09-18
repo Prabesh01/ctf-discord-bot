@@ -21,10 +21,15 @@ class Setting(models.Model):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=50,blank=False, null=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE,editable=False)
+
     def __str__(self):
         return self.name
+
+    class Meta:
+        unique_together = ('name', 'user',)
+
 
 ALLOWED_IMAGE_EXTENSIONS=['jpg', 'png', 'jpeg', 'webp']
 class Challenge(models.Model):
