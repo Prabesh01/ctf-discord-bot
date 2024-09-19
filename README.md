@@ -19,7 +19,7 @@ _The main idea of this project is to get more output with the least effort. This
 
 ### Deploy
 - Edit .env.example and ctfdash/.env.example. Rename to .env. Must have same API_KEY on both.
-- set nginx.conf
+- set nginx.conf. Make sure to keep `client_max_body_size 10M;` in http{} block
 - add ALLOWED_HOSTS in settings.py
 - python3 manage.py collectstatic
 - chown -R www-data:www-data / chmod -R 755
