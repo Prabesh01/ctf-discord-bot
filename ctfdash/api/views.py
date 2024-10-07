@@ -71,20 +71,19 @@ def submit_flag(request):
 @csrf_exempt
 @api_key_required
 def edit_ch_link(request):
+    challenge=Challenge.objects.filter(user__username="951810185205280778").order_by('-add_time')
+
+    if not challenge: return HttpResponse("", status=404)
+    challenge=challenge.first()
+
     if request.method == 'POST':
-        ch = request.POST.get('challenge')
         url = request.POST.get('url')
 
-        if ch and url:            
-            # check if challenge exists
-            challenge=Challenge.objects.filter(pk=ch)
-            if not challenge: return HttpResponse(f"Challenge doesn't exist!", status=404)
-
-            challenge=challenge.first()
+        if url:
             challenge.link=url
             challenge.save()
-            
+
             return HttpResponse("Updated!", status=200)
         else: return HttpResponse("", status=400)
 
-    return HttpResponse("", status=405)
+    return HttpResponse(challenge.title, status=200)
