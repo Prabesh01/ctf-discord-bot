@@ -66,3 +66,25 @@ def submit_flag(request):
         else: return HttpResponse("", status=400) # Parameter Missing
 
     return HttpResponse("", status=405) # Method Not Allowed
+
+
+@csrf_exempt
+@api_key_required
+def edit_ch_link(request):
+    if request.method == 'POST':
+        ch = request.POST.get('challenge')
+        url = request.POST.get('url')
+
+        if ch and url:            
+            # check if challenge exists
+            challenge=Challenge.objects.filter(pk=ch)
+            if not challenge: return HttpResponse(f"Challenge doesn't exist!", status=404)
+
+            challenge=challenge.first()
+            challenge.link=url
+            challenge.save()
+            
+            return HttpResponse("Updated!", status=200)
+        else: return HttpResponse("", status=400)
+
+    return HttpResponse("", status=405)
