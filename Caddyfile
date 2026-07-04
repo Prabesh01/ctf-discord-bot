@@ -1,0 +1,13 @@
+conan.prax.to {
+    reverse_proxy 127.0.0.1:5050
+
+    handle_path /static/* {
+        root * /var/www/conan/static
+        file_server
+    }
+
+    handle_path /uploads/* {
+        root * /var/www/conan/uploads
+        file_server
+    }
+}

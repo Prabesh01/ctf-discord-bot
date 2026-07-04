@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-1v77zfkedoi&d-(mduh&o@72byboteqqmue^vcin7a8o0fbx+*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1','conan.prax.to']
 CSRF_TRUSTED_ORIGINS = ['https://conan.prax.to']

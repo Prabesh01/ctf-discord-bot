@@ -5,6 +5,7 @@ services:
     volumes:
       - ./db.sqlite3:/app/ctfdash/db.sqlite3
       - ./uploads:/app/ctfdash/uploads
+      - ./static:/app/ctfdash/static
       - ./.env:/app/.env
     ports:
       - "127.0.0.1:5050:5050"
