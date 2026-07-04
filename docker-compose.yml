@@ -1,0 +1,13 @@
+services:
+  app:
+    image: ghcr.io/prabesh01/conan:latest
+    restart: unless-stopped
+    volumes:
+      - ./db.sqlite3:/app/ctfdash/db.sqlite3
+      - ./uploads:/app/ctfdash/uploads
+      - ./.env:/app/.env
+    ports:
+      - "127.0.0.1:5050:5050"
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
