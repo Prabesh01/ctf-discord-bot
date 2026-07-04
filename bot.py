@@ -1,3 +1,5 @@
+from datetime import datetime
+import csv
 
 import os
 from pathlib import Path
@@ -14,9 +16,62 @@ ENV_FILE = BASE_DIR / '.env'
 load_dotenv(ENV_FILE)
 API_KEY=os.environ.get('API_KEY')
 
+from discord import Spotify
 intents = discord.Intents.default()
+intents.presences = True
+intents.members = True
+
 bot = Bot(command_prefix='/', intents=intents)
 bot.remove_command('help')
+
+@bot.event
+async def on_presence_update(before, after):
+    if after.bot: return
+
+    if str(after.status) in ["invisible" ,"offline"]: status = 0
+    else: status = 1
+
+    if str(before.status) in ["invisible" ,"offline"]: last_status = 0
+    else: last_status = 1
+
+    was = False
+    if before.activities:
+        for activity in before.activities:
+            if isinstance(activity, Spotify): was = activity
+
+    found = False
+    if after.activities:
+        for activity in after.activities:
+            if isinstance(activity, Spotify):
+                found=activity
+                break
+
+    seek=None
+    if found and was:
+        if was.track_id==found.track_id:
+            seek=1
+            # seek=int((was.start - found.start).total_seconds()*1000)
+            # requests.get(f"{os.environ.get('ARK_FM_SITE_URL')}/activity_seek?&uid={after.id}&seek={seek}")
+
+    if found and not seek:
+        # print(f"{found.name} is now listening to {found.title} by {found.artist}")
+        r=requests.get(f"{os.environ.get('ARK_FM_SITE_URL')}/activity?track={found.track_id}&uid={after.id}&user={after.global_name}&profile={after.avatar}&title={found.title}&artist={found.artist}&cover={found.album_cover_url}&start={found.start}")
+
+    if was and not found:
+        requests.get(f"{os.environ.get('ARK_FM_SITE_URL')}/activity_rm?uid={after.id}")
+
+    if last_status == status: return
+
+    user_id = after.id
+    timestamp = datetime.utcnow().isoformat()
+
+    if user_id==1242529693236854885: requests.post(os.environ.get('log_webhook'), json={"content":f"status: {status}"})
+
+    with open(BASE_DIR / 'presence_log.csv', 'a', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([user_id, status, timestamp])
+
+    # print(f"{str(after)}: {before.status} -> {after.status}")
 
 
 @bot.event
