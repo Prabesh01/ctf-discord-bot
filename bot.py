@@ -60,17 +60,6 @@ async def on_presence_update(before, after):
     if was and not found:
         requests.get(f"{os.environ.get('ARK_FM_SITE_URL')}/activity_rm?uid={after.id}")
 
-    if last_status == status: return
-
-    user_id = after.id
-    timestamp = datetime.utcnow().isoformat()
-
-    if user_id==1242529693236854885: requests.post(os.environ.get('log_webhook'), json={"content":f"status: {status}"})
-
-    with open(BASE_DIR / 'presence_log.csv', 'a', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow([user_id, status, timestamp])
-
     # print(f"{str(after)}: {before.status} -> {after.status}")
 
 
